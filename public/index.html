@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./main.css" />
+    <link rel="stylesheet" href="./dist/client/codemirror/lib/codemirror.css" />
+    <title>Odoo Code Editor</title>
+  </head>
+  <body>
+    <h1>Odoo Code Editor</h1>
+    <main>
+      <textarea id="code" name="code"></textarea>
+      <div id="control-panel">
+        <button id="start-bash">Connect container</button>
+        <input
+          type="text"
+          id="container-name"
+          placeholder="Container name"
+          value="agence-pure-illusion-teractem_odoo"
+        />
+        <button id="index">Index</button>
+        <button id="save">Save</button>
+      </div>
+      <!-- <div id="output"></div> -->
+    </main>
+
+    <script src="./dist/client/codemirror/lib/codemirror.js"></script>
+    <script src="./dist/client/codemirror/mode/python/python.js"></script>
+    <script src="./dist/client/main.js"></script>
+  </body>
+</html>
