@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  displayMessage("Hello, TypeScript!");
+  displayMessage("Odoo Code Editor is ready!");
   let code = document.getElementById("code") as HTMLTextAreaElement;
   let startBash = document.getElementById("start-bash") as HTMLButtonElement;
   let containerName = document.getElementById(

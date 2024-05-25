@@ -1,6 +1,6 @@
 "use strict";
 document.addEventListener("DOMContentLoaded", async () => {
-    displayMessage("Hello, TypeScript!");
+    displayMessage("Odoo Code Editor is ready!");
     let code = document.getElementById("code");
     let startBash = document.getElementById("start-bash");
     let containerName = document.getElementById("container-name");

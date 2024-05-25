@@ -55,7 +55,7 @@ main {
 #control-panel_container input {
   width: 100%;
 }
-#control-panel_container button {
+#control-panel button {
   padding: 10px 20px;
   margin: 5px;
   background-color: #444;
@@ -65,7 +65,7 @@ main {
   transition: background-color 0.3s;
 }
 
-#control-panel_container button:hover {
+#control-panel button:hover {
   background-color: #555;
 }
 
