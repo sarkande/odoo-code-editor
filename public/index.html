@@ -12,15 +12,25 @@
     <main>
       <textarea id="code" name="code"></textarea>
       <div id="control-panel">
-        <button id="start-bash">Connect container</button>
-        <input
-          type="text"
-          id="container-name"
-          placeholder="Container name"
-          value="agence-pure-illusion-teractem_odoo"
-        />
-        <button id="index">Index</button>
-        <button id="save">Save</button>
+        <div id="control-panel_search">
+          <label for="search">Search:</label>
+          <input type="text" id="search" />
+
+          <select id="search-results"></select>
+          <button id="open-file">Open</button>
+        </div>
+        <div id="control-panel_container">
+          <!-- New button to load index -->
+          <button id="start-bash">Connect container</button>
+          <input
+            type="text"
+            id="container-name"
+            placeholder="Container name"
+            value="agence-pure-illusion-teractem_odoo"
+          />
+          <button id="scan-files">Scan files</button>
+          <button id="load-files">Load files</button>
+        </div>
       </div>
       <!-- <div id="output"></div> -->
     </main>

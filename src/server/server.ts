@@ -166,6 +166,46 @@ export class Server {
       }
     });
 
+    this.app.post("/open-file", async (req: Request, res: Response) => {
+      console.log("Received request to get file");
+      //need to get the file path from the request body
+      //then we execute the command cat file_path
+      const filePath: string = req.body.path;
+      if (!filePath || filePath === "") {
+        return res
+          .status(400)
+          .send({ status: "error", message: "File path is required" });
+      }
+      console.log(`File path: ${filePath}`);
+      if (this.container) {
+        try {
+          const status = await this.container.getStatus();
+          if (status.status) {
+            try {
+              const result = await this.container.sendCommand(
+                `cat ${filePath}`,
+              );
+
+              return res.send({ status: "success", message: result });
+            } catch (error: any) {
+              return res
+                .status(500)
+                .send({ status: "error", message: error.message });
+            }
+          } else {
+            return res
+              .status(500)
+              .send({ status: "error", message: "Container not started" });
+          }
+        } catch (err) {
+          return res.status(500).send({
+            status: "error",
+            message: "Failed to get container status",
+          });
+        }
+      }
+    });
+
     this.app.use((req: Request, res: Response) => {
       console.log(`Received request from: ${req.ip}`);
 
