@@ -1,6 +1,6 @@
 "use strict";
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("Hello, TypeScript!");
+    displayMessage("Hello, TypeScript!");
     let code = document.getElementById("code");
     let startBash = document.getElementById("start-bash");
     let containerName = document.getElementById("container-name");
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let editor = null; // To store the CodeMirror editor instance
     // Save the file index when the save button is clicked
     loadFiles.addEventListener("click", async () => {
-        console.log("Get container file in container");
+        displayMessage("Get container file in container");
         let res = await fetch("/get-container-file", {
             method: "POST",
             headers: {
@@ -40,18 +40,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
         });
         let data = await res.json();
-        console.log(data);
         if (data.length > 0) {
             fileIndex = data;
-            console.log("File index saved", fileIndex);
+            displayMessage(`File index loaded with ${fileIndex.length} files`);
         }
         else {
-            console.error("Failed to save file index");
+            displayMessage("Failed to save file index", true);
         }
     });
     startBash.addEventListener("click", async () => {
-        console.log("Starting bash shell in container");
-        console.log(containerName.value);
+        displayMessage("Starting bash shell in container");
+        displayMessage(containerName.value);
         let res = await fetch("/start-bash-container", {
             method: "POST",
             headers: {
@@ -60,11 +59,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             body: JSON.stringify({ containerName: containerName.value }),
         });
         let data = await res.json();
-        console.log(data);
+        displayMessage(data.message);
         // alert(data.message);
     });
     scanFiles.addEventListener("click", async () => {
-        console.log("Running index in container");
+        displayMessage("Running index in container");
         let res = await fetch("/index-files", {
             method: "POST",
             headers: {
@@ -72,11 +71,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
         });
         let data = await res.json();
-        console.log(data);
+        displayMessage(`${data.message} ${data.data.length} files indexed`);
         // alert(data.message);
     });
     openFile.addEventListener("click", async () => {
-        console.log("Opening file in container");
+        displayMessage("Opening file in container");
         //get search-results value
         let selectedFile = searchResults.value;
         if (!selectedFile || selectedFile === "") {
@@ -92,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             body: JSON.stringify({ path: selectedFile }),
         });
         let data = await res.json();
-        console.log(data);
+        displayMessage(`File has been opened with the status ${data.status}`);
         //if file is opened, display the content in the textarea
         //the textarea should load codemirror depending on the file type
         if (data.status === "success") {
@@ -154,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
     saveFile.addEventListener("click", async () => {
-        console.log("Saving file in container");
+        displayMessage("Saving file in container");
         let res = await fetch("/save-file", {
             method: "POST",
             headers: {
@@ -166,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }),
         });
         let data = await res.json();
-        console.log(data);
+        displayMessage(`the file has been saved with the status ${data.status}`);
     });
     function displaySearchResults(results) {
         searchResults.innerHTML = "";
@@ -179,5 +178,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     function clearSearchResults() {
         searchResults.innerHTML = "";
+    }
+    function displayMessage(message, isError = false) {
+        const outputDiv = document.getElementById("output");
+        const messageElement = document.createElement("div");
+        messageElement.textContent = message;
+        if (isError) {
+            messageElement.classList.add("error");
+        }
+        outputDiv.appendChild(messageElement);
+        outputDiv.scrollTop = outputDiv.scrollHeight; // Scroll to the bottom
     }
 });
