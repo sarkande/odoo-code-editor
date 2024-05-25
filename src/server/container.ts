@@ -22,7 +22,14 @@ export class Container {
 
   private startConnexionDocker(): ChildProcess {
     console.log(`Starting bash shell in container ${this.containerName}`);
-    return spawn("docker", ["exec", "-i", this.containerName, "bash"]);
+    return spawn("docker", [
+      "exec",
+      "-i",
+      this.containerName,
+      "-u",
+      "0",
+      "bash",
+    ]);
   }
 
   public stopConnexionDocker(): void {
@@ -80,7 +87,15 @@ export class Container {
 
   public async sendCommand(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const args = ["exec", this.containerName, "bash", "-c", command];
+      const args = [
+        "exec",
+        "-u",
+        "0",
+        this.containerName,
+        "bash",
+        "-c",
+        command,
+      ];
       const childProcess = spawn("docker", args);
 
       let stdoutData = "";

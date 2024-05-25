@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let searchResults = document.getElementById(
     "search-results",
   ) as HTMLSelectElement;
+  let saveFile = document.getElementById("save-file") as HTMLButtonElement;
 
   if (!code) throw new Error("Code element not found");
   if (!startBash) throw new Error("Start bash element not found");
@@ -22,8 +23,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!loadFiles) throw new Error("Save element not found");
   if (!search) throw new Error("Search element not found");
   if (!searchResults) throw new Error("Search results element not found");
+  if (!saveFile) throw new Error("Save element not found");
 
   let fileIndex: { path: string; hash: string }[] = [];
+  let editor: any = null; // To store the CodeMirror editor instance
 
   // Save the file index when the save button is clicked
   loadFiles.addEventListener("click", async () => {
@@ -77,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log(data);
     // alert(data.message);
   });
+
   openFile.addEventListener("click", async () => {
     console.log("Opening file in container");
     //get search-results value
@@ -97,10 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log(data);
     //if file is opened, display the content in the textarea
     //the textarea should load codemirror depending on the file type
-    // const editor = CodeMirror.fromTextArea(codeTextarea, {
-    //   lineNumbers: true,
-    //   mode: "python",
-    // });
     if (data.status === "success") {
       let extension = selectedFile.split(".").pop();
       let mode = "";
@@ -134,15 +134,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           break;
       }
 
-      let editor = CodeMirror.fromTextArea(code, {
-        lineNumbers: true,
-        mode: mode,
-      });
+      if (!editor) {
+        editor = CodeMirror.fromTextArea(code, {
+          lineNumbers: true,
+          mode: mode,
+        });
+      } else {
+        editor.setOption("mode", mode);
+      }
+      //reset the editor value
       editor.setValue(data.message);
     } else {
       alert(data.message);
     }
   });
+
   search.addEventListener("input", () => {
     let query = search.value.trim().toLowerCase();
 
@@ -154,6 +160,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       clearSearchResults();
     }
+  });
+
+  saveFile.addEventListener("click", async () => {
+    console.log("Saving file in container");
+    let res = await fetch("/save-file", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        path: searchResults.value,
+        content: editor.getValue(),
+      }),
+    });
+    let data = await res.json();
+    console.log(data);
   });
 
   function displaySearchResults(results: { path: string; hash: string }[]) {

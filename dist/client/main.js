@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let loadFiles = document.getElementById("load-files");
     let search = document.getElementById("search");
     let searchResults = document.getElementById("search-results");
+    let saveFile = document.getElementById("save-file");
     if (!code)
         throw new Error("Code element not found");
     if (!startBash)
@@ -25,7 +26,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error("Search element not found");
     if (!searchResults)
         throw new Error("Search results element not found");
+    if (!saveFile)
+        throw new Error("Save element not found");
     let fileIndex = [];
+    let editor = null; // To store the CodeMirror editor instance
     // Save the file index when the save button is clicked
     loadFiles.addEventListener("click", async () => {
         console.log("Get container file in container");
@@ -91,10 +95,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(data);
         //if file is opened, display the content in the textarea
         //the textarea should load codemirror depending on the file type
-        // const editor = CodeMirror.fromTextArea(codeTextarea, {
-        //   lineNumbers: true,
-        //   mode: "python",
-        // });
         if (data.status === "success") {
             let extension = selectedFile.split(".").pop();
             let mode = "";
@@ -127,10 +127,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                     mode = "python";
                     break;
             }
-            let editor = CodeMirror.fromTextArea(code, {
-                lineNumbers: true,
-                mode: mode,
-            });
+            if (!editor) {
+                editor = CodeMirror.fromTextArea(code, {
+                    lineNumbers: true,
+                    mode: mode,
+                });
+            }
+            else {
+                editor.setOption("mode", mode);
+            }
+            //reset the editor value
             editor.setValue(data.message);
         }
         else {
@@ -146,6 +152,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         else {
             clearSearchResults();
         }
+    });
+    saveFile.addEventListener("click", async () => {
+        console.log("Saving file in container");
+        let res = await fetch("/save-file", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                path: searchResults.value,
+                content: editor.getValue(),
+            }),
+        });
+        let data = await res.json();
+        console.log(data);
     });
     function displaySearchResults(results) {
         searchResults.innerHTML = "";

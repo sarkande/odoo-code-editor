@@ -206,6 +206,55 @@ export class Server {
       }
     });
 
+    this.app.post("/save-file", async (req: Request, res: Response) => {
+      console.log("Received request to save file");
+      const filePath: string = req.body.path;
+      const content: string = req.body.content;
+      if (!filePath || filePath === "") {
+        return res
+          .status(400)
+          .send({ status: "error", message: "File path is required" });
+      }
+      if (!content || content === "") {
+        return res
+          .status(400)
+          .send({ status: "error", message: "Content is required" });
+      }
+      console.log(`File path: ${filePath}`);
+      console.log(`Content: ${content}`);
+      if (this.container) {
+        try {
+          const status = await this.container.getStatus();
+          if (status.status) {
+            try {
+              const escapedContent = content
+                .replace(/"/g, '\\"')
+                .replace(/\$/g, "\\$"); // Escape double quotes and dollar signs
+              const result = await this.container.sendCommand(
+                `echo "${escapedContent}" | tee ${filePath}`,
+                // "whoami",
+              );
+
+              return res.send({ status: "success", message: result });
+            } catch (error: any) {
+              return res
+                .status(500)
+                .send({ status: "error", message: error.message });
+            }
+          } else {
+            return res
+              .status(500)
+              .send({ status: "error", message: "Container not started" });
+          }
+        } catch (err) {
+          return res.status(500).send({
+            status: "error",
+            message: "Failed to get container status",
+          });
+        }
+      }
+    });
+
     this.app.use((req: Request, res: Response) => {
       console.log(`Received request from: ${req.ip}`);
 

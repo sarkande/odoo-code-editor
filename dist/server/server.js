@@ -198,6 +198,53 @@ class Server {
                 }
             }
         });
+        this.app.post("/save-file", async (req, res) => {
+            console.log("Received request to save file");
+            const filePath = req.body.path;
+            const content = req.body.content;
+            if (!filePath || filePath === "") {
+                return res
+                    .status(400)
+                    .send({ status: "error", message: "File path is required" });
+            }
+            if (!content || content === "") {
+                return res
+                    .status(400)
+                    .send({ status: "error", message: "Content is required" });
+            }
+            console.log(`File path: ${filePath}`);
+            console.log(`Content: ${content}`);
+            if (this.container) {
+                try {
+                    const status = await this.container.getStatus();
+                    if (status.status) {
+                        try {
+                            const escapedContent = content
+                                .replace(/"/g, '\\"')
+                                .replace(/\$/g, "\\$"); // Escape double quotes and dollar signs
+                            const result = await this.container.sendCommand(`echo "${escapedContent}" | tee ${filePath}`);
+                            return res.send({ status: "success", message: result });
+                        }
+                        catch (error) {
+                            return res
+                                .status(500)
+                                .send({ status: "error", message: error.message });
+                        }
+                    }
+                    else {
+                        return res
+                            .status(500)
+                            .send({ status: "error", message: "Container not started" });
+                    }
+                }
+                catch (err) {
+                    return res.status(500).send({
+                        status: "error",
+                        message: "Failed to get container status",
+                    });
+                }
+            }
+        });
         this.app.use((req, res) => {
             console.log(`Received request from: ${req.ip}`);
             res.status(404).send("Page not found");
